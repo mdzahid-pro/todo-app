@@ -79,9 +79,9 @@ function renderTodos(){
         li.className = `todo-item ${todo.priority} ${todo.category ? todo.category.toLowerCase() : ''} `;
 
         li.innerHTML = `
-            <input type="checkbox" id="todoInput${todo.id}">
+            <input class="update-completed-input completed_${className}" type="checkbox" id="todoInput${todo.id}" ${ todo.completed ? 'checked' : '' }>
             <div class="todo-content">
-                <label for="todo1">${todo.title}</label>
+                <label for="todoInput${todo.id}">${todo.title}</label>
                 <span class="category">${ todo.category }</span>
                 <span class="meta">Due: ${ todo.dueDate } | Priority: ${ todo.priority }</span>
                 <div class="notes">${ todo.note }</div>
@@ -182,6 +182,16 @@ function randomId(){
 // add event listener to the todoForm element
 todoForm.addEventListener('submit', handleTodo);
 
+function completedTodo(todoId) {
+    const todoIndex = todos.findIndex(todo => todo.id === todoId);
+
+    if (todoIndex !== -1) {
+        todos[todoIndex].completed = ! todos[todoIndex].completed;
+        localStorage.setItem('todos', JSON.stringify(todos));
+        renderTodos();
+    }
+}
+
 // add event listener to the todoList element for edit and delete buttons
 todoList.addEventListener('click', function(event){
     if (event.target.classList.contains('edit-btn')) {
@@ -199,6 +209,15 @@ todoList.addEventListener('click', function(event){
         if (todoClass) {
             const todoId = todoClass.replace('delete_todo_class_', '');
             deleteTodo(todoId);
+        }
+    } else if (event.target.classList.contains('update-completed-input')) {
+        const classList = event.target.className.split(' ');
+        const todoClass = classList.find(cls => cls.startsWith('completed_'));
+
+        if (todoClass) {
+            const todoId = todoClass.replace('completed_todo_class_', '');
+            console.log(todoId);
+            completedTodo(todoId);
         }
     }
 });
